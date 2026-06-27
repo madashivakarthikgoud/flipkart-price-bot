@@ -1,0 +1,30 @@
+# render.yaml — Blueprint for one-click Render.com deploy
+# Docs: https://render.com/docs/blueprint-spec
+#
+# IMPORTANT: Use "worker" type, NOT "web".
+# Web services on Render free tier spin down after 15 min of no HTTP traffic.
+# Worker services run 24/7 on free tier with no spin-down.
+
+services:
+  - type: worker
+    name: flipkart-price-bot
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: singapore          # closest to India = lowest latency to Flipkart
+    autoDeploy: true           # redeploy automatically on git push
+    envVars:
+      - key: FLIPKART_URL
+        sync: false            # "sync: false" = you set it manually in dashboard (keeps secrets out of git)
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false
+      - key: TARGET_PRICE
+        value: "0"             # change to your target price e.g. "11999"
+      - key: POLL_INTERVAL_SECS
+        value: "10"
+      - key: JITTER_MS
+        value: "3000"
+      - key: RUST_LOG
+        value: "flipkart_price_bot=info"
